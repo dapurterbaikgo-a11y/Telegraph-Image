@@ -24,8 +24,14 @@ export async function onRequestPost(context) {
         // 根据文件类型选择合适的上传方式
         let apiEndpoint;
         if (uploadFile.type.startsWith('image/')) {
-            telegramFormData.append("photo", uploadFile);
-            apiEndpoint = 'sendPhoto';
+            // WebP需要作为document发送，因为sendPhoto不完全支持
+            if (uploadFile.type === 'image/webp') {
+                telegramFormData.append("document", uploadFile);
+                apiEndpoint = 'sendDocument';
+            } else {
+                telegramFormData.append("photo", uploadFile);
+                apiEndpoint = 'sendPhoto';
+            }
         } else if (uploadFile.type.startsWith('audio/')) {
             telegramFormData.append("audio", uploadFile);
             apiEndpoint = 'sendAudio';
